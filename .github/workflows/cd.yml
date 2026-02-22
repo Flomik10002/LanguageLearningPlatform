@@ -83,8 +83,18 @@ jobs:
             SSH_PORT=22
           fi
           ssh -p "${SSH_PORT}" "${SSH_USER}@${SSH_HOST}" "set -euo pipefail; \
+            if [ \"\$(id -u)\" -eq 0 ]; then SUDO=''; else SUDO='sudo -n'; fi; \
+            NODE_MAJOR=\"\$(node -p 'process.versions.node.split(\".\")[0]')\"; \
+            if [ \"\${NODE_MAJOR}\" -lt 22 ]; then \
+              echo 'Node.js 22+ is required on server. Install it once, then rerun CD.' >&2; \
+              echo 'Example: curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && apt-get install -y nodejs' >&2; \
+              exit 1; \
+            fi; \
             cd '${APP_DIR}'; \
+            if [ ! -f .env ]; then cp deploy/env/.env.example .env; fi; \
             npm ci --omit=dev; \
-            sudo -n systemctl daemon-reload; \
-            sudo -n systemctl restart flomik-labs; \
+            \${SUDO} cp deploy/systemd/flomik-labs.service /etc/systemd/system/flomik-labs.service; \
+            \${SUDO} systemctl daemon-reload; \
+            \${SUDO} systemctl enable flomik-labs >/dev/null; \
+            \${SUDO} systemctl restart flomik-labs; \
             curl -fsS http://127.0.0.1:3000/api/health >/dev/null"

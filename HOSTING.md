@@ -84,7 +84,7 @@ sudo systemctl reload nginx
 Enable HTTPS:
 
 ```bash
-sudo certbot --nginx -d your-domain.example.com
+sudo certbot --nginx -d language.flomik.xyz
 ```
 
 ## 5. GitHub Actions CI/CD

@@ -1,0 +1,18 @@
+{
+  "name": "LanguageLearningApp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:import": "node server/import-localstorage.js",
+    "db:import-token": "node server/import-token-attempts.js",
+    "token:add": "node server/manage-token.js add",
+    "token:create": "node server/manage-token.js create",
+    "token:list": "node server/manage-token.js list",
+    "token:revoke": "node server/manage-token.js revoke",
+    "token:activate": "node server/manage-token.js activate"
+  },
+  "private": true
+}

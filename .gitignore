@@ -1,0 +1,7 @@
+server/data/*
+!server/data/.gitkeep
+.idea/
+backup.json
+*.log
+lesson_*.json
+sample-lesson.json

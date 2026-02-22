@@ -99,7 +99,15 @@ jobs:
             \${SUDO} systemctl daemon-reload; \
             \${SUDO} systemctl enable flomik-labs >/dev/null; \
             \${SUDO} systemctl restart flomik-labs; \
-            if ! curl -fsS http://127.0.0.1:3000/api/health >/dev/null; then \
+            HEALTH_OK=0; \
+            for i in \$(seq 1 30); do \
+              if curl -fsS http://127.0.0.1:3000/api/health >/dev/null; then \
+                HEALTH_OK=1; \
+                break; \
+              fi; \
+              sleep 1; \
+            done; \
+            if [ \"\${HEALTH_OK}\" -ne 1 ]; then \
               echo 'Health check failed. Service diagnostics:' >&2; \
               \${SUDO} systemctl status flomik-labs --no-pager -l >&2 || true; \
               \${SUDO} journalctl -u flomik-labs -n 120 --no-pager >&2 || true; \

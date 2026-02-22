@@ -92,9 +92,16 @@ jobs:
             fi; \
             cd '${APP_DIR}'; \
             if [ ! -f .env ]; then cp deploy/env/.env.example .env; fi; \
+            \${SUDO} mkdir -p /var/lib/flomik-labs /var/backups/flomik-labs; \
+            \${SUDO} chown -R www-data:www-data /var/lib/flomik-labs /var/backups/flomik-labs; \
             npm ci --omit=dev; \
             \${SUDO} cp deploy/systemd/flomik-labs.service /etc/systemd/system/flomik-labs.service; \
             \${SUDO} systemctl daemon-reload; \
             \${SUDO} systemctl enable flomik-labs >/dev/null; \
             \${SUDO} systemctl restart flomik-labs; \
-            curl -fsS http://127.0.0.1:3000/api/health >/dev/null"
+            if ! curl -fsS http://127.0.0.1:3000/api/health >/dev/null; then \
+              echo 'Health check failed. Service diagnostics:' >&2; \
+              \${SUDO} systemctl status flomik-labs --no-pager -l >&2 || true; \
+              \${SUDO} journalctl -u flomik-labs -n 120 --no-pager >&2 || true; \
+              exit 1; \
+            fi"

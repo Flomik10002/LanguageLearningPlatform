@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { DatabaseSync } = require('node:sqlite');
 
-const DB_PATH = process.env.LL_DB_PATH || path.join(__dirname, 'data', 'lingualab.sqlite');
+const DB_PATH = process.env.LL_DB_PATH || path.join(__dirname, 'data', 'flomik-labs.sqlite');
 const SCHEMA_PATH = path.join(__dirname, 'schema.sql');
 
 function ensureDir() {

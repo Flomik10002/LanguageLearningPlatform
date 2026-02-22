@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "server/server.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
   "scripts": {
     "start": "node server/server.js",
+    "ci:smoke": "bash scripts/smoke-healthcheck.sh",
     "test": "echo \"Error: no test specified\" && exit 1",
     "db:import": "node server/import-localstorage.js",
     "db:import-token": "node server/import-token-attempts.js",

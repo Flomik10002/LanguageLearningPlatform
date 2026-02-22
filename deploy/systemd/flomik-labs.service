@@ -1,0 +1,21 @@
+[Unit]
+Description=Flomik Labs Node Server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/flomik-labs
+EnvironmentFile=/opt/flomik-labs/.env
+ExecStart=/usr/bin/node server/server.js
+Restart=always
+RestartSec=3
+User=www-data
+Group=www-data
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/flomik-labs /var/lib/flomik-labs
+
+[Install]
+WantedBy=multi-user.target

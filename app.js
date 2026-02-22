@@ -1723,7 +1723,7 @@
       lessons: state.lessons,
       attempts: state.attempts
     };
-    downloadJSON(payload, `lingualab-backup-${Date.now()}.json`);
+    downloadJSON(payload, `flomik-labs-backup-${Date.now()}.json`);
   }
 
   async function resetAllData() {

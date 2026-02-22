@@ -1,0 +1,90 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  APP_DIR: /opt/flomik-labs
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Smoke test before deploy
+        run: npm run ci:smoke
+
+      - name: Start SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Add host key
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SSH_PORT:-}" ]; then
+            SSH_PORT=22
+          fi
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "${SSH_PORT}" -H "${SSH_HOST}" >> ~/.ssh/known_hosts
+
+      - name: Upload app to server
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SSH_PORT:-}" ]; then
+            SSH_PORT=22
+          fi
+          rsync -az --delete \
+            --exclude ".git" \
+            --exclude ".github" \
+            --exclude "server/data" \
+            -e "ssh -p ${SSH_PORT}" \
+            ./ "${SSH_USER}@${SSH_HOST}:${APP_DIR}/"
+
+      - name: Install production deps and restart service
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SSH_PORT:-}" ]; then
+            SSH_PORT=22
+          fi
+          ssh -p "${SSH_PORT}" "${SSH_USER}@${SSH_HOST}" "set -euo pipefail; \
+            cd '${APP_DIR}'; \
+            npm ci --omit=dev; \
+            sudo -n systemctl daemon-reload; \
+            sudo -n systemctl restart flomik-labs; \
+            curl -fsS http://127.0.0.1:3000/api/health >/dev/null"

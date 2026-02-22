@@ -466,6 +466,6 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, HOST, () => {
-  console.log(`LinguaLab server started on http://${HOST}:${PORT}`);
+  console.log(`Flomik Labs server started on http://${HOST}:${PORT}`);
   console.log(`SQLite: ${DB_PATH}`);
 });

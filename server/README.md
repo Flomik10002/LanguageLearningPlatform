@@ -34,17 +34,17 @@ Lessons and attempts are isolated per token; there is no shared lesson library b
 ## Import a localStorage export
 1. In the app, click `Export all` and save the JSON file.
 2. Run import:
-   `npm run db:import -- /path/to/lingualab-backup-XXXX.json`
+   `npm run db:import -- /path/to/flomik-labs-backup-XXXX.json`
 
 This is a legacy global import and is not used by token-based app screens.
-Database file: `server/data/lingualab.sqlite` (override with `LL_DB_PATH`).
+Database file: `server/data/flomik-labs.sqlite` (override with `LL_DB_PATH`).
 
 ## Bind backup to a specific token
 If you want backup data to belong to one specific user token:
 
 1. Add/create token first.
 2. Import lessons + attempts for this token:
-   `npm run db:import-token -- <token> /path/to/lingualab-backup-XXXX.json`
+   `npm run db:import-token -- <token> /path/to/flomik-labs-backup-XXXX.json`
 
 This writes to `user_lessons` and `user_attempts` for that token. When user signs in, they see only their own library/history.
 
